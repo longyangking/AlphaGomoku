@@ -6,3 +6,7 @@ class Chessboard:
     def playchess(self,x,y,role):
 
     def chessboardinfo(self):
+
+    def playchess(self,x,y,role):
+
+    def victoryjudge(self):

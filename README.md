@@ -10,3 +10,5 @@
 
 ## Status
 Working on it
+
+## How to use

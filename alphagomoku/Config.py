@@ -5,10 +5,10 @@ ChessBoardHeight = 20
 ChessBoardWidth = 20
 
 # Role Info
-Role = Enum('Role','Player Computer')
+Roles = {'Human':0,'Computer':1}
 
 # Chess Info
-Chess = Enum('Chess','PutByPlayer PutByComputer NoChess')
+ChessInfo = {'Human':-1,'Computer':1}
 
 # Victory Info
-Victory = Enum('Victory','PlayerWin ComputerWin NoOneWin')
+Victories = {'Human':0,'Computer':1}

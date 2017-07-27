@@ -4,6 +4,9 @@ import Computer
 import Human
 
 class Player:
+    '''
+    Essential class for playing
+    '''
     def __init__(self,role):
         self.role = role
         if self.role == Role.Human:

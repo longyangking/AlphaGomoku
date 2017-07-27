@@ -4,8 +4,8 @@ import numpy as np
 class Gamedata:
     def __init__(self):
 
-    def append(self):
-
+    def append(self,chessboardinfo):
+        
 
     def gameinfo(self):
 

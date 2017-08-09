@@ -1,6 +1,8 @@
 # AlphaGomoku
 > Gomoku Game with AI
 
+![](./pics/gomoku.jpeg)
+
 ## Features
 + Reinforcement learning
 

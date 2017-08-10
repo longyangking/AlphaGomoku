@@ -56,5 +56,8 @@ class Computer:
                         + 3*chessboardinfo[i-2,j] \
                         + 2*chessboardinfo[i-3,j] \
                         + chessboardinfo[i-4,j]
-                values[i,j] = value
+                values[i,j] = value + 0.5*np.exp(-((i-width/2)**2/(width/2)**2 + (j-height/2)**2/(height/2)**2))
+                
+                if chessboardinfo[i,j] != 0:
+                    values[i,j] = -1
         return values        

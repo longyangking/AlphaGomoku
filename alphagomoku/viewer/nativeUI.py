@@ -2,12 +2,14 @@ import numpy as np
 import sys
 import Config
 from PyQt5.QtWidgets import QWidget, QApplication,QDesktopWidget
-from PyQt5.QtCore import QRect
-from PyQt5.QtGui import QPainter, QColor, QBrush, QPalette
+from PyQt5.QtCore import * 
+from PyQt5.QtGui import *
 
-class nativeUI(QWidget):
-    def __init__(self,chessboardinfo,sizeunit,role="Human"):
-        super().__init__()
+class nativeUI(QWidget,QThread):
+    playsignal = pyqtSignal(tuple) 
+
+    def __init__(self,pressaction,chessboardinfo,sizeunit=50,role="Human"):
+        super(nativeUI,self).__init__()
         self.chessboardinfo = chessboardinfo
         self.sizeunit = sizeunit
         self.R = 0.4*sizeunit
@@ -17,16 +19,29 @@ class nativeUI(QWidget):
 
         self.chooseX = 0
         self.chooseY = 0
-        self.playstatus = True
+        self.playstatus = False
         self.chessvalue = Config.ChessInfo['Human']
+
+
+        self.pressaction = pressaction
+
+        self.playsignal.connect(self.pressaction) 
         self.initUI()
+        
+    def getplaystatus(self):
+        return self.playstatus,(self.chooseX,self.chooseY)
 
     def getchessboardinfo(self):
         return self.chessboardinfo
 
     def setchessboard(self,chessboardinfo):
         self.chessboardinfo = chessboardinfo
-        self.playstatus = True
+        self.playstatus = False
+        self.update()
+
+    def run(self):
+        while True:
+            pass
 
     def initUI(self):
         (Nx,Ny) = self.chessboardinfo.shape
@@ -52,7 +67,7 @@ class nativeUI(QWidget):
         self.drawChessboard(qp)
         self.drawChesses(qp)
         self.chooseChess(qp)
-        if not self.playstatus:
+        if self.playstatus:
             self.waitforanother(qp)
         qp.end()
 
@@ -78,11 +93,12 @@ class nativeUI(QWidget):
     def mousePressEvent(self,e):
         X = int(e.x()/self.sizeunit)
         Y = int(e.y()/self.sizeunit)
-        if (self.chessboardinfo[X,Y] == 0) and self.playstatus:
+        if (self.chessboardinfo[X,Y] == 0) and not self.playstatus:
             self.chooseX = X
             self.chooseY = Y
             self.chessboardinfo[X,Y] = self.chessvalue
-            self.playstatus = False
+            self.playstatus = True
+            self.playsignal.emit((X,Y))
             self.update()
 
     def chooseChess(self,qp):

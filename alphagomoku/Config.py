@@ -1,8 +1,8 @@
 from enum import Enum 
 
 # ChessBoard Info
-ChessBoardHeight = 20
-ChessBoardWidth = 20
+ChessBoardHeight = 10
+ChessBoardWidth = 10
 
 # Role Info
 Roles = {'Human':0,'Computer':1}

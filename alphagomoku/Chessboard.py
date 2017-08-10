@@ -20,6 +20,7 @@ class Chessboard:
     def victoryjudge(self,role):
         count = 0
         flag = False
+        chessboard = self.chessboard
         for i in range(self.chessboardwidth):
             for j in range(self.chessboardheight):
                 if ((i-4 >= 0) and (j-4 >= 0)):

@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 
-import naivecomputer
+import naiveai
 import Chessboard
 import Gameengine
 import viewer
@@ -14,7 +14,7 @@ class Playwithnaiveai(QApplication):
     def __init__(self):
         super().__init__(sys.argv)
         #self.playsignal = pyqtSignal(tuple) 
-        self.computer = naivecomputer.Computer()
+        self.computer = naiveai.naivecomputer.Computer()
         self.chessboard = Chessboard.Chessboard()
 
     def init(self):

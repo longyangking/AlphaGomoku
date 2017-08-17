@@ -5,7 +5,7 @@ class Computer:
     Naive Computer with minimal cost simplified table-form strategy
     '''
     def __init__(self):
-        print("Naive Computer with minimal simplified cost")
+        print("Naive Computer with minimal cost simplified table-form strategy")
         pass
 
     def play(self,chessboardinfo):
@@ -18,7 +18,7 @@ class Computer:
         x,y = pos
         (width,height) = chessboardinfo.shape
         if (x < 0) or (x >= width) or (y < 0) or (y >= height):
-            return -1
+            return 0
         else:
             return chessboardinfo[x,y]
 
@@ -42,7 +42,7 @@ class Computer:
                             valuehorizon += self.__getchess(pos,chessboardinfo)
                             pos = [x + bias + i, y + bias + i]
                             valuecross += self.__getchess(pos,chessboardinfo)
-                        value = np.max([value, valuevertical, valuehorizon, valuecross])
+                        value = np.max(np.abs([value, valuevertical, valuehorizon, valuecross]))
 
                     values[x,y] = value + 0.1*np.exp(-((x-width/2)**2/(width/2)**2 + (y-height/2)**2/(height/2)**2))
                     

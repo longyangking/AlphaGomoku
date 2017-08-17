@@ -28,8 +28,6 @@ class Computer:
                     values[i,j] = -1
                 else:
                     value = 0
-                    if 
-
                     if ((i-4 >= 0) and (j-4 >= 0)):
                         value += 4*chessboardinfo[i-1,j-1] \
                             + 3*chessboardinfo[i-2,j-2] \

@@ -5,11 +5,11 @@ from PyQt5.QtWidgets import QWidget, QApplication,QDesktopWidget
 from PyQt5.QtCore import * 
 from PyQt5.QtGui import *
 
-class nativeUI(QWidget,QThread):
+class nativeUI(QWidget):
     playsignal = pyqtSignal(tuple) 
 
     def __init__(self,pressaction,chessboardinfo,sizeunit=50,role="Human"):
-        super(nativeUI,self).__init__()
+        super(nativeUI,self).__init__(None)
         self.chessboardinfo = chessboardinfo
         self.sizeunit = sizeunit
         self.R = 0.4*sizeunit
@@ -22,6 +22,8 @@ class nativeUI(QWidget,QThread):
         self.playstatus = False
         self.chessvalue = Config.ChessInfo['Human']
 
+        self.isgameend = False
+        self.winner = ''
 
         self.pressaction = pressaction
 
@@ -38,10 +40,6 @@ class nativeUI(QWidget,QThread):
         self.chessboardinfo = chessboardinfo
         self.playstatus = False
         self.update()
-
-    def run(self):
-        while True:
-            pass
 
     def initUI(self):
         (Nx,Ny) = self.chessboardinfo.shape
@@ -67,8 +65,10 @@ class nativeUI(QWidget,QThread):
         self.drawChessboard(qp)
         self.drawChesses(qp)
         self.chooseChess(qp)
-        if self.playstatus:
+        if self.playstatus and not self.isgameend:
             self.waitforanother(qp)
+        if self.isgameend:
+            self.drawgameend(qp)
         qp.end()
 
     def waitforanother(self,qp):
@@ -84,7 +84,25 @@ class nativeUI(QWidget,QThread):
         font.setPixelSize(60)
         qp.setFont(font)
         qp.drawText(QRect(size.width()/2-width/2, size.height()/2-height/2, width, height),	0x0004|0x0080,str("Waiting..."))
-       
+
+    def gameend(self,winner):
+        self.isgameend = True
+        self.winner = winner
+
+    def drawgameend(self,qp):
+        size =  self.geometry()
+        qp.setPen(0)
+        qp.setBrush(QColor(200, 200, 200, 180))
+        width = size.width()/5*4
+        height = size.height()/3
+        qp.drawRect(size.width()/2-width/2, size.height()/2-height/2, width, height)
+
+        qp.setPen(QColor(0,0,0))
+        font = qp.font()
+        font.setPixelSize(60)
+        qp.setFont(font)
+        qp.drawText(QRect(size.width()/2-width/2, size.height()/2-height/2, width, height),	0x0004|0x0080,str(self.winner + " Win"))
+
     def mouseMoveEvent(self,e):
         self.mousex = int(e.x()/self.sizeunit)
         self.mousey = int(e.y()/self.sizeunit)

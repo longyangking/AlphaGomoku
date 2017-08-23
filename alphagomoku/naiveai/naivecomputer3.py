@@ -1,4 +1,10 @@
 import numpy as np 
+import sys
+sys.path.append("..")
+import Config
+
+HV = Config.ChessInfo['Human']
+CV = Config.ChessInfo['Computer']
 
 class Computer:
     '''
@@ -11,9 +17,8 @@ class Computer:
 
     def play(self,chessboardinfo):
         self.chessboardinfo = chessboardinfo.copy() # Local version
-        
-
-        return (0,0)
+        point = self.__widesearch()
+        return point
 
     def __widesearch(self,num=2*4):
         points = self.__generator()
@@ -21,7 +26,7 @@ class Computer:
         bestvalue = None
         bestpoint = None
         for point in points:
-            value = self.__maxComputer(pos,num)
+            value = self.__maxComputer(point,num)
             if (bestvalue is None) or (bestvalue < value):
                 bestvalue = value
                 bestpoint = point
@@ -58,19 +63,25 @@ class Computer:
     def __generator(self,num=16):
         (width,height) = self.chessboardinfo.shape
         values = self.__valuesComputer()
-        argpos = np.argsort(-values)
+        argpos = np.argsort(-values.flatten())
         choices = argpos[:num]
-        Xs = int(choices/width)
+        #print(choices/width)
+        Xs = list(map(int,choices/width))
         Ys = choices%height
         return list(zip(Xs,Ys))
 
-    def __bestpositions(self):
+    def __bestposComputer(self,values):
+        return self.__bestposition(values)
+    
+    def __bestposHuman(self,values):
+        return self.__bestposition(values)
+
+    def __bestposition(self,values):
         (width,height) = self.chessboardinfo.shape
-        values = self.__values()
-        flatpos = np.argsort(-values.flatten())
-        Xs = int(flatpos/width)
-        Ys = flatpos%width
-        return list(zip(Xs,Ys))
+        bestpos = np.argmax(values.flatten())
+        X = int(bestpos/width)
+        Y = bestpos%width
+        return (X,Y)
 
     def __getchess(self,pos):
         x,y = pos
@@ -245,6 +256,7 @@ class Computer:
         return 0
         
     def __valueComputer(self,pos):
+        (width,height) = self.chessboardinfo.shape
         i,j = pos
         if self.chessboardinfo[i,j] !=0: return -1
 
@@ -272,6 +284,7 @@ class Computer:
         return value
 
     def __valueHuman(self,pos):
+        (width,height) = self.chessboardinfo.shape
         i,j = pos
         if self.chessboardinfo[i,j] !=0: return -1
 

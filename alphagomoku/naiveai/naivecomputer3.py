@@ -8,11 +8,11 @@ CV = Config.ChessInfo['Computer']
 
 class Computer:
     '''
-    Naive Computer with minimal cost deep-search strategy
+    Naive Computer with full cost deep-search strategy
     '''
     def __init__(self):
         self.chessboardinfo = None
-        print("Naive Computer with minimal cost deep-search strategy")
+        print("Naive Computer with full cost deep-search strategy")
         pass
 
     def play(self,chessboardinfo):
@@ -20,54 +20,90 @@ class Computer:
         point = self.__widesearch()
         return point
 
-    def __widesearch(self,num=2*4):
+    def __widesearch(self,num=4):
         points = self.__generator()
         
         bestvalue = None
         bestpoint = None
+
         for point in points:
-            value = self.__maxComputer(point,num)
-            if (bestvalue is None) or (bestvalue < value):
+            self.chessboardinfo[point] = CV
+
+            computervalue0 = self.__valueComputer(point)
+            humanvalue0 = self.__valueHuman(point)
+
+            computervalue,humanvalue = self.__playbyHuman(num)
+            computervalue += computervalue0
+            humanvalue += humanvalue0
+
+            # Self-defined principles
+            value = computervalue + humanvalue
+            if humanvalue > computervalue:
+                value = humanvalue
+            else:
+                value = computervalue
+            
+            if (bestpoint is None) or (bestvalue < value):
                 bestvalue = value
                 bestpoint = point
+
+            self.chessboardinfo[point] = 0
         return bestpoint
             
-    def __maxComputer(self,pos,num):
-        # End of iteration
-        if num == 0: 
-            value = self.__valueComputer(pos)
-            return value
-
+    def __playbyComputer(self,num):
         # Normal process
         values = self.__valuesComputer()
         bestpos = self.__bestposComputer(values)
-        currentvalue = self.__valueComputer(pos)
-        value = currentvalue + self.__maxHuman(pos,num-1)
+        computervalue = self.__valueComputer(bestpos) 
+        humanvalue = self.__valueHuman(bestpos)
+        # End of iteration
+
+        self.chessboardinfo[bestpos] = CV
+        if num == 0:
+            value = computervalue,humanvalue
+        else:
+            computervaluenext,humanvaluenext = self.__playbyHuman(num-1)
+            value = computervalue + computervaluenext, humanvalue + humanvaluenext
+        self.chessboardinfo[bestpos] = 0
 
         return value
 
-    def __maxHuman(self,pos,num):
-        # End of iteration
-        if num == 0:
-            value = self.__valueHuman(pos)
-            return value
-        
+    def __playbyHuman(self,num):
         # Normal process
         values = self.__valuesHuman()
         bestpos = self.__bestposHuman(values)
-        currentvalue = - self.__valueHuman(pos) # The value for human will be negative for computer
-        value = currentvalue + self.__maxHuman(pos,num-1)
+        computervalue = self.__valueComputer(bestpos) 
+        humanvalue = self.__valueHuman(bestpos)
+        # End of iteration
+
+        self.chessboardinfo[bestpos] = HV
+        if num == 0:
+            value = computervalue,humanvalue
+        else:
+            computervaluenext,humanvaluenext = self.__playbyComputer(num-1)
+            value = computervalue + computervaluenext, humanvalue + humanvaluenext
+        self.chessboardinfo[bestpos] = 0
 
         return value
 
-    def __generator(self,num=16):
+    def __generator(self,num=10):
         (width,height) = self.chessboardinfo.shape
+
+        # The positions which give great value to computer
         values = self.__valuesComputer()
         argpos = np.argsort(-values.flatten())
         choices = argpos[:num]
         #print(choices/width)
         Xs = list(map(int,choices/width))
-        Ys = choices%height
+        Ys = list(choices%height)
+
+        # The positions which give great value to human
+        values = self.__valuesHuman()
+        argpos = np.argsort(-values.flatten())
+        choices = argpos[:num]
+        Xs.extend(list(map(int,choices/width)))
+        Ys.extend(list(choices%height))
+
         return list(zip(Xs,Ys))
 
     def __bestposComputer(self,values):

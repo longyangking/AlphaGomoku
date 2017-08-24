@@ -15,7 +15,7 @@ class Playwithnaiveai:
     def __init__(self):
         #super().__init__(sys.argv)
         #self.playsignal = pyqtSignal(tuple) 
-        self.computer = naiveai.naivecomputer3.Computer()
+        self.computer = naiveai.naivecomputer2.Computer()
         self.chessboard = Chessboard.Chessboard()
 
         self.waitingforplay = True

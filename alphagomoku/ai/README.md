@@ -1,7 +1,12 @@
-# Artificial Intelligence (AI)
-> Based on the Machine Learning and Deep Learning
+# Machine Learning
+> Based on the conventional Machine Learning Technologies
 
-The method for deep learning will based on [AlphaGo](http://www.nature.com/nature/journal/v529/n7587/full/nature16961.html)
+## Features
++ Probabilistic Graphical Model and Bayesian Graph
++ Support Vector Machine
++ Random Forest
++ Boost and Ensemble learning
++ Online Learning
 
-## References
-[1]Silver D, Huang A, Maddison C J, et al. Mastering the game of Go with deep neural networks and tree search[J]. Nature, 2016, 529(7587): 484-489.
+## Status 
+Working on it...

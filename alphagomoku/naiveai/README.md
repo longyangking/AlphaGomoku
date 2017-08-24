@@ -6,7 +6,6 @@
 + Solution search based on deep search
 + Monte-Carlo Tree will be achieved
 + Eolutionary algorithms
-+ Boost and ensemble
 
 ## ToDo
 + How to define the value of point properly?  
@@ -15,7 +14,7 @@
     How to design a series of codes to analyze the status of chessboard? When to attack? When to defend?
 
 ## Status
-Working on it
+Working on it... Lack of experience and shortage of approaches, I find it is actually hard to take all cases into consideration well. (May machine learning can save us? Silver bullet?)
 
 ## Extra
 The naive computer player will represent the highest level of human expert ability and it will become the rivals with the computer player trained by Machine learning and Deep learning. Under same game rules, which side will be final winner? it's exciting to explore: the wisdom crystal combined with human expert knowledge, or the powerful alien came from unknown computer world.

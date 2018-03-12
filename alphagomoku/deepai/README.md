@@ -1,7 +1,10 @@
 # Neural Network and Deep Learning (AI)
 > Based on the Deep Learning Technologies
 
+This part is highly based on the open-source code [AlphaZero_Gomoku](https://github.com/junxiaosong/AlphaZero_Gomoku)
+
 The method for deep learning will based on [AlphaGo](http://www.nature.com/nature/journal/v529/n7587/full/nature16961.html)
 
 ## References
-[1]Silver D, Huang A, Maddison C J, et al. Mastering the game of Go with deep neural networks and tree search[J]. Nature, 2016, 529(7587): 484-489.
+[1]Silver D, Huang A, Maddison C J, et al. Mastering the game of Go with deep neural networks and tree search[J]. Nature, 2016, 529(7587): 484-489.  
+[2]Silver, David, et al. "Mastering the game of go without human knowledge." Nature 550.7676 (2017): 354.

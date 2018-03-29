@@ -3,17 +3,33 @@ import numpy as np
 import time
 
 class Gamedata:
-    def __init__(self,list=None):
+    def __init__(self,data=None):
         self.date =  time.strftime("%Y-%m-%d(%H:%M:%S)", time.localtime())
-        if list is not None:
+
+        self.list = data
+        if data is None:
             self.list = list()
         self.totalsteps = 0
+        self.winner = None
+
+    def init(self,data=None):
+        self.__init__(data=data)
 
     def append(self,chessboardinfo):
         self.list.append(chessboardinfo)
         self.totalsteps += 1
 
-    def gameinfo(self):
+    def gameend(self,winner):
+        self.winner = winner
+
+    def getinfo(self):
+        return self.winner, self.totalsteps
+        
+    def getdata(self,indexs):
+        if (min(indexs) < 0) and (max(index) >= self.totalsteps):
+            return None
+        data = [self.list[i] for i in indexs]
+        return data
         
     def getwinner(self):
         return self.winner

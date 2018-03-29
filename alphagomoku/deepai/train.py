@@ -1,6 +1,6 @@
 import numpy as np
 from alphazero import AlphaZero 
-from mcts import MCTS 
+from collections import defaultdict, deque
 
 class TrainAI:
     def __init__(self,
@@ -64,6 +64,7 @@ class TrainAI:
         '''
         Get MCTS self-play data for training
         '''
+
 
     def network_update(self):
         '''

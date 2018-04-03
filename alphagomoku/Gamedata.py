@@ -3,13 +3,14 @@ import numpy as np
 import time
 
 class Gamedata:
-    def __init__(self,data=None):
+    def __init__(self,board_shape,data=None):
         self.date =  time.strftime("%Y-%m-%d(%H:%M:%S)", time.localtime())
 
         self.list = data
         if data is None:
             self.list = list()
         self.totalsteps = 0
+        self.board_shape = board_shape
         self.winner = None
 
     def init(self,data=None):
@@ -26,11 +27,36 @@ class Gamedata:
         return self.winner, self.totalsteps
         
     def getdata(self,indexs):
-        if (min(indexs) < 0) and (max(index) >= self.totalsteps):
-            return None
-        data = [self.list[i] for i in indexs]
+        data = list()
+        for i in indexs:
+            if (i<0) or (i>=self.totalsteps):
+                data.append(np.zeros(self.board_shape))
+            else:
+                data.append(self.list[i])
+        #if (min(indexs) < 0) and (max(index) >= self.totalsteps):
+        #    return None
+        #data = [self.list[i] for i in indexs]
         return data
-        
+
+    def getstate(self,steps=3):
+        '''
+        Get state vector (for neural network)
+        '''
+        state = list()
+        if self.totalsteps == 0:
+            for _ in range(steps):
+                state.append(np.zeros(self.board_shape))
+            return state
+        if self.totalsteps < steps:
+            for _ in range(self.totalsteps-steps):
+                state.append(np.zeros(self.board_shape))
+            for i in range(self.totalsteps):
+                state.append(self.list[i])
+            return state
+        for i in range(self.totalsteps-steps,self.totalsteps):
+            state.append(self.list[i])
+        return state
+
     def getwinner(self):
         return self.winner
 

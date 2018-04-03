@@ -32,7 +32,7 @@ class TreeNode:
 
     def update_recuresive(self, leaf_value):
         if self._parent:
-            self._parent.update_recuresive(-leaf_value)
+            self._parent.update_recuresive(leaf_value)
         self.update(leaf_value)
 
     def get_value(self,c_puct):
@@ -44,8 +44,6 @@ class TreeNode:
 
     def is_root(self):
         return self._parent is None
-
-
 
 class MCTS:
     def __init__(self,value_function, c_puct, n_playout, verbose=False):
@@ -61,7 +59,7 @@ class MCTS:
             if node.is_leaf():
                 break
             action, node = node.select(self._c_puct)
-            # TODO apply move action
+            state.putchess()
 
         # TODO return (action, probility, leaf value)
         action_probs, leaf_value = self._value_function(state)
@@ -108,7 +106,7 @@ class MCTS:
         # TODO default player
 
     def _rollout_value_function(self, state):
-
+        pass
 
     def update_with_move(self, move):
         if move in self._root._childern:
@@ -132,14 +130,19 @@ class MCTSPlayer:
     def reset_player(self):
         self.mcts.update_with_move(-1)
 
+    def play(self, state):
+        board = state[-1]
+        move, action_prob = self.get_action(board=board,temperature=1.0)
+        x = int(move/board.shape[0])
+        y = move%board.shape[1]
+        return (x,y)
+
     def get_action(self, board, temperature, return_prob=0):
-        # TODO initiate move prob 
-        move_probs = np.zeros()
+        move_probs = np.zeros(board.shape)
+        is_available = np.sum(board==0)>0
 
-        if board.is_available():
+        if is_available:
             actions, probs = self.mcts.get_move_probs(board, temperature)
-
-            # TODO consider flatten data structure
             move_probs[list(actions)] = probs
             if self._is_selfplay:
                 move = np.random.choice(
@@ -178,4 +181,5 @@ class Checkplayer:
         self.mcts.update_with_move(-1)
 
     def get_action(self, state):
+        pass
         

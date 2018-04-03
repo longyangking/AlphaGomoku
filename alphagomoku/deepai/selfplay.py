@@ -3,19 +3,32 @@
 #
 
 import numpy as np 
-from mcts import MCTS 
+from ..GameEnigne import GameEnigne
+from mcts import MCTSPlayer
 
 class Selfplay:
-    def __init__(self,ai,verbose=False):
+    def __init__(self,ai, c_puct, n_playout, is_selfplay, verbose=False):
         self.ai = ai
         self.dataset = list()
-        
-        computerA = MCTS()
-        computerB = MCTS()
-        self.gameenigne = GameEnigne(playA=computerA,playB=computerB)
+        self.gameenigne = None
+        self.c_puct = c_puct
+        self.n_playout = n_playout
+        self.is_selfplay = is_selfplay
+        self.verbose = verbose
 
     def init(self):
         self.dataset = list()
+        computerA = MCTSPlayer(func=ai.value_function, 
+                        c_puct=self.c_puct, 
+                        n_playout=self.n_playout, 
+                        is_selfplay=is_selfplay,
+                        verbose=self.verbose)
+        computerB = MCTSPlayer(func=ai.value_function, 
+                        c_puct=self.c_puct, 
+                        n_playout=self.n_playout, 
+                        is_selfplay=is_selfplay,
+                        verbose=self.verbose)
+        self.gameenigne = GameEnigne(playA=computerA,playB=computerB)
 
     def get_data(self):
         gamedata = self.gameenigne.run()
@@ -25,10 +38,13 @@ class Selfplay:
 class Evaluator:
     def __init__(self,ai,verbose=False):
         self.ai = ai
-        self.evaluate_player = 
+        self.evaluate_player = None
 
     def evaluate(self):
+        # TODO play with naive MCTS player to evaluate
 
-
+        win_ratio = 0
 
         return win_ratio
+
+if __name__== "__main__":

@@ -65,7 +65,7 @@ class MCTS:
         action_probs, leaf_value = self._value_function(state)
 
         # TODO return 
-        end, winner = 
+        end, winner =  a
 
         if not end:
             node.expand(action_probs)

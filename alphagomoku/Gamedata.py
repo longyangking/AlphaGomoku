@@ -13,8 +13,8 @@ class Gamedata:
         self.board_shape = board_shape
         self.winner = None
 
-    def init(self,data=None):
-        self.__init__(data=data)
+    def init(self,board_shape,data=None):
+        self.__init__(board_shape=board_shape,data=data)
 
     def append(self,chessboardinfo):
         self.list.append(chessboardinfo)

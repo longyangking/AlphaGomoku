@@ -1,9 +1,9 @@
 import numpy as np 
-import ai
+import deepai
 
 class Computer:
     def __init__(self):
-        self.AI = self.ai.AI()
+        self.AI = self.deepai.AI()
 
     def play(self,chessboardinfo):
         chesspos = self.AI.play(chessboardinfo)

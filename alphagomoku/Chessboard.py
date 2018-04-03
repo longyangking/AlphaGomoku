@@ -1,23 +1,73 @@
+from __future__ import absolute_import
+
 import numpy as np 
 import Config
+import Gamedata
+import copy
 
 class Chessboard:
-    def __init__(self):
+    def __init__(self,players):
+        self.players = players
+
         self.chessboardheight = Config.ChessBoardHeight
         self.chessboardwidth = Config.ChessBoardWidth
-        self.chessboard = np.zeros((self.chessboardwidth,self.chessboardheight))
+        self.shape = (self.chessboardwidth,self.chessboardheight)
+        self.chessboard = np.zeros(self.shape)
+        self.gamedata = Gamedata(board_shape=(self.chessboardheight,self.chessboardwidth))
+        self.is_gameend = False
+        
+    def init(self):
+        self.chessboard = np.zeros(self.shape)
+        self.gamedata.init(board_shape=self.shape)
+        self.is_gameend = False
+
+    def get_shape(self):
+        return self.shape
 
     def playchess(self,pos,role):
+        if self.is_gameend:
+            return False
         if self.chessboard[pos] == 0:
             self.chessboard[pos] = Config.ChessInfo[role]
         else:
             return False
+        self.gamedata.append(chessboardinfo=self.chessboard)
         return True
 
-    def chessboardinfo(self):
-        return self.chessboard
+    def get_game_data(self):
+        return self.gamedata
+
+    def get_data(self,indexs):
+        return self.gamedata.getdata(indexs)
+    
+    def get_state(self,steps=3):
+        return self.gamedata.getstate(steps)
+
+    def get_chessboardinfo(self):
+        return copy.deepcopy(self.chessboard)
+        
+    def is_available(self):
+        return np.sum(self.chessboard==0)>0
+
+    def get_status(self,role):
+        for player in self.players:
+            flag,role = self.victoryjudge(role=player.role)
+            if flag:
+                break
+        return flag, role
+
+    def get_roles(self):
+        roles = [player.role for player in self.players]
+        return roles
 
     def victoryjudge(self,role):
+        flag,role = self._evaluate(role=role)
+        if flag:
+            self.is_gameend = True
+            self.gamedata.gameend(winner=role)
+        return flag, role
+
+    def _evaluate(self,role):
         count = 0
         flag = False
         chessboard = self.chessboard
@@ -103,4 +153,5 @@ class Chessboard:
                         flag =  True
                         return flag,role
         
+
         return flag,None

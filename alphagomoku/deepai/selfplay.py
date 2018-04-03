@@ -22,11 +22,13 @@ class Selfplay:
                         c_puct=self.c_puct, 
                         n_playout=self.n_playout, 
                         is_selfplay=is_selfplay,
+                        role='Self_A',
                         verbose=self.verbose)
         computerB = MCTSPlayer(func=ai.value_function, 
                         c_puct=self.c_puct, 
                         n_playout=self.n_playout, 
                         is_selfplay=is_selfplay,
+                        role='Self_B',
                         verbose=self.verbose)
         self.gameenigne = GameEnigne(playA=computerA,playB=computerB)
 

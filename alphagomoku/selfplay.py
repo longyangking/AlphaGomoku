@@ -1,13 +1,16 @@
 #
 # Utils for self-play
 #
+from __future__ import absolute_import
 
 import numpy as np 
-from ..GameEnigne import GameEnigne
 from mcts import MCTSPlayer
+import Config
+import Computer
+from Gameengine import GameEngine
 
 class Selfplay:
-    def __init__(self,ai, c_puct, n_playout, is_selfplay, verbose=False):
+    def __init__(self, ai, c_puct, n_playout, is_selfplay, verbose=False):
         self.ai = ai
         self.dataset = list()
         self.gameenigne = None
@@ -18,19 +21,19 @@ class Selfplay:
 
     def init(self):
         self.dataset = list()
-        computerA = MCTSPlayer(func=ai.value_function, 
+        computerA = MCTSPlayer(value_function=self.ai.value_function, 
                         c_puct=self.c_puct, 
                         n_playout=self.n_playout, 
-                        is_selfplay=is_selfplay,
+                        is_selfplay=self.is_selfplay,
                         role='Self_A',
                         verbose=self.verbose)
-        computerB = MCTSPlayer(func=ai.value_function, 
+        computerB = MCTSPlayer(value_function=self.ai.value_function, 
                         c_puct=self.c_puct, 
                         n_playout=self.n_playout, 
-                        is_selfplay=is_selfplay,
+                        is_selfplay=self.is_selfplay,
                         role='Self_B',
                         verbose=self.verbose)
-        self.gameenigne = GameEnigne(playA=computerA,playB=computerB)
+        self.gameenigne = GameEngine(playerA=computerA,playerB=computerB)
 
     def get_data(self):
         gamedata = self.gameenigne.run()
@@ -48,5 +51,3 @@ class Evaluator:
         win_ratio = 0
 
         return win_ratio
-
-if __name__== "__main__":

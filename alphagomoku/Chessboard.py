@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import numpy as np 
 import Config
-import Gamedata
+from Gamedata import Gamedata
 import copy
 
 class Chessboard:
@@ -39,7 +39,7 @@ class Chessboard:
 
     def get_data(self,indexs):
         return self.gamedata.getdata(indexs)
-    
+
     def get_state(self,steps=3):
         return self.gamedata.getstate(steps)
 

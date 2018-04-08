@@ -2,7 +2,7 @@ import numpy as np
 import Config
 import Chessboard
 
-class Gameengine:
+class GameEngine:
     def __init__(self,playerA,playerB):
         self.playerA = playerA
         self.playerB = playerB

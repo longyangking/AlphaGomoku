@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import numpy as np 
 import copy
-from .. import Config
+import Config
 from operator import itemgetter
 
 def softmax(x):
@@ -51,7 +51,7 @@ class TreeNode:
 class MCTS:
     def __init__(self,value_function, c_puct, n_playout, role, verbose=False):
         self._root = TreeNode(None, 1.0)
-        self._value_function = _value_function
+        self._value_function = value_function
         self._c_puct = c_puct
         self._n_playout = n_playout
         self.role = role
@@ -69,10 +69,7 @@ class MCTS:
             chessboard.playchess(pos=action,role=roles[role_index])
             role_index = (role_index + 1)%len(roles)
 
-        # TODO return (action, probility, leaf value)
-        action_probs, leaf_value = self._value_function(chessboard.get_state())
-
-        # TODO return 
+        action_probs, leaf_value = self._value_function(chessboard)
         end, winner =  chessboard.get_status()
 
         if not end:
@@ -87,7 +84,7 @@ class MCTS:
                 )
         
         # Update the whole MC tree recursively
-        node.update_recursive(-leaf_value)
+        node.update_recursive(leaf_value)
 
     def get_move_probs(self, chessboard, temperature, eps=1e-10):
         for i in range(self._n_playout):
@@ -109,17 +106,17 @@ class MCTS:
 
     def _evaluate_rollout(self, chessboard, n_round):
         # TODO Pure playout
-        for i in range(n_round):
-            end, winner = 
-            if end:
-                break
-            action_probs = self._rollout_value_function(chessboard)
-            _action = max(action_probs, key=itemgetter(1))[0]
-            chessboard.play(_action)
-        else:
-            if self.verbose:
-                print("Warning: Rollout reaches round limit")
-        
+        #for i in range(n_round):
+        #    end, winner = 
+        #    if end:
+        #        break
+        #    action_probs = self._rollout_value_function(chessboard)
+        #    _action = max(action_probs, key=itemgetter(1))[0]
+        #    chessboard.play(_action)
+        #else:
+        #    if self.verbose:
+        #        print("Warning: Rollout reaches round limit")
+        pass
         # TODO default player
 
     def _rollout_value_function(self, chessboard):
@@ -179,6 +176,10 @@ class MCTSPlayer:
             if self.verbose:
                 # TODO need modification
                 print("The board is full")
+
+    def play(self,chessboard):
+        temperature = 1.0
+        return self.get_action(chessboard=chessboard,temperature=temperature,return_prob=False)
 
     def __str__(self):
         return "Monte Carlo Tree Search: {player}".format(player=player)

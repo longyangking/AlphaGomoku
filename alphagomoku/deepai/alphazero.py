@@ -30,8 +30,10 @@ class AlphaZero:
     def init(self):
         self.model = None
 
-    def evaluate(self,state):
+    def evaluate(self,chessboard):
         # TODO return policy_value, action_prob
+
+        state = chessboard.get_state()
         if len(state) == 0:
             raise ValueError("Void state!")
         action_prob = np.ones(self.input_size[1:])

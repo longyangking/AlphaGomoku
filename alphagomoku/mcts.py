@@ -33,9 +33,9 @@ class TreeNode:
         self._n_visits += 1
         self._Q += 1.0*(leaf_value - self._Q) / self._n_visits
 
-    def update_recuresive(self, leaf_value):
+    def update_recursive(self, leaf_value):
         if self._parent:
-            self._parent.update_recuresive(leaf_value)
+            self._parent.update_recursive(leaf_value)
         self.update(leaf_value)
 
     def get_value(self,c_puct):
@@ -66,10 +66,10 @@ class MCTS:
             if node.is_leaf():
                 break
             action, node = node.select(self._c_puct)
-            chessboard.playchess(pos=action,role=roles[role_index])
+            chessboard.playchess_rec(pos_rec=action,role=roles[role_index])
             role_index = (role_index + 1)%len(roles)
 
-        action_probs, leaf_value = self._value_function(chessboard)
+        action_probs, leaf_value = self._value_function(chessboard=chessboard, role=roles[role_index], verbose=self.verbose)
         end, winner =  chessboard.get_status()
 
         if not end:
@@ -94,7 +94,7 @@ class MCTS:
         action_visits = [(action, node._n_visits) 
                         for action, node in self._root._childern.items()]
         actions, visits = zip(*action_visits)
-        actions_probs = softmax(1.0/temperature*np.log(np.array(visits) + eps))
+        action_probs = softmax(1.0/temperature*np.log(np.array(visits) + eps))
         return actions, action_probs
 
     def get_move(self, chessboard):
@@ -134,7 +134,7 @@ class MCTS:
 
 class MCTSPlayer:
     def __init__(self, value_function, c_puct, n_playout, is_selfplay, role, verbose=False):
-        self.mcts = MCTS(value_function, c_puct, n_playout, role)
+        self.mcts = MCTS(value_function, c_puct, n_playout, role, verbose)
         self._is_selfplay = is_selfplay
         self.role = role
         self.verbose = verbose
@@ -157,7 +157,8 @@ class MCTSPlayer:
 
         if is_available:
             actions, probs = self.mcts.get_move_probs(chessboard, temperature)
-            move_probs[list(actions)] = probs
+            positions = chessboard.rec2pos(actions)
+            move_probs[positions] = probs
             if self._is_selfplay:
                 move = np.random.choice(
                     actions,
@@ -179,7 +180,8 @@ class MCTSPlayer:
 
     def play(self,chessboard):
         temperature = 1.0
-        return self.get_action(chessboard=chessboard,temperature=temperature,return_prob=False)
+        action = self.get_action(chessboard=chessboard,temperature=temperature,return_prob=False)
+        return chessboard.rec2pos([action])
 
     def __str__(self):
         return "Monte Carlo Tree Search: {player}".format(player=player)

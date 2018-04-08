@@ -1,6 +1,7 @@
 import h5py
 import numpy as np 
 import time
+import copy
 
 class Gamedata:
     def __init__(self,board_shape,data=None):
@@ -17,7 +18,7 @@ class Gamedata:
         self.__init__(board_shape=board_shape,data=data)
 
     def append(self,chessboardinfo):
-        self.list.append(chessboardinfo)
+        self.list.append(copy.deepcopy(chessboardinfo))
         self.totalsteps += 1
 
     def gameend(self,winner):
@@ -25,8 +26,11 @@ class Gamedata:
 
     def getinfo(self):
         return self.winner, self.totalsteps
+
+    def getstepinfo(self):
+        return self.totalsteps
         
-    def getdata(self,indexs):
+    def getdatas(self,indexs):
         data = list()
         for i in indexs:
             if (i<0) or (i>=self.totalsteps):
@@ -37,6 +41,18 @@ class Gamedata:
         #    return None
         #data = [self.list[i] for i in indexs]
         return data
+
+    def getdata(self,index):
+        if (index<0) or (index>=self.totalsteps):
+            return None
+        else:
+            return copy.deepcopy(self.list[index])
+
+    def getdatashape(self):
+        return self.board_shape
+
+    def getalldata(self):
+        return self.winner, copy.deepcopy(self.list)
 
     def getstate(self,steps=3):
         '''

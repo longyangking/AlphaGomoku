@@ -33,12 +33,12 @@ class Selfplay:
                         is_selfplay=self.is_selfplay,
                         role='Self_B',
                         verbose=self.verbose)
-        self.gameenigne = GameEngine(playerA=computerA,playerB=computerB)
+        self.gameenigne = GameEngine(playerA=computerA,playerB=computerB,verbose=self.verbose)
 
     def get_data(self):
         gamedata = self.gameenigne.run()
-        winner, train_data = gamedata.getdata()
-        return winner, train_data
+        #winner, train_data = gamedata.getalldata()
+        return gamedata
 
 class Evaluator:
     def __init__(self,ai,verbose=False):

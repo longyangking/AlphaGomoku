@@ -24,6 +24,29 @@ class Chessboard:
     def get_shape(self):
         return self.shape
 
+    def rec2pos(self, rec_pos):
+        #if type(rec_pos) is not list:
+        #    return (rec_pos%self.chessboardwidth, int(rec_pos/self.chessboardwidth))
+        x = [pos%self.chessboardwidth for pos in rec_pos]
+        y = [int(pos/self.chessboardwidth) for pos in rec_pos]
+        return [x,y]
+
+    def pos2rec(self, pos):
+        x,y = pos
+        rec_pos = x + y*self.chessboardwidth
+        return rec_pos
+
+    def playchess_rec(self,pos_rec,role):
+        pos = (pos_rec%self.chessboardwidth,int(pos_rec/self.chessboardwidth))
+        if self.is_gameend:
+            return False
+        if self.chessboard[pos] == 0:
+            self.chessboard[pos] = Config.ChessInfo[role]
+        else:
+            return False
+        self.gamedata.append(chessboardinfo=self.chessboard)
+        return True
+
     def playchess(self,pos,role):
         if self.is_gameend:
             return False
@@ -40,16 +63,27 @@ class Chessboard:
     def get_data(self,indexs):
         return self.gamedata.getdata(indexs)
 
+    def get_stepinfo(self):
+        return self.gamedata.getstepinfo()
+
     def get_state(self,steps=3):
         return self.gamedata.getstate(steps)
 
-    def get_chessboardinfo(self):
+    def get_chessboardinfo(self,role):
+        chess_value = Config.ChessInfo[role]
+        if chess_value < 0:
+            return copy.deepcopy(-self.chessboard)
         return copy.deepcopy(self.chessboard)
         
     def is_available(self):
         return np.sum(self.chessboard==0)>0
+    
+    def get_availables(self):
+        positions = np.transpose(np.where(self.chessboard==0))
+        rec_pos = positions[:,0] + self.chessboardwidth*positions[:,1]
+        return positions, rec_pos
 
-    def get_status(self,role):
+    def get_status(self):
         for player in self.players:
             flag,role = self.victoryjudge(role=player.role)
             if flag:

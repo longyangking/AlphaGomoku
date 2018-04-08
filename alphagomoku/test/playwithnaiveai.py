@@ -9,6 +9,8 @@ import viewer
 #from PyQt5.QtWidgets import QApplication
 #from PyQt5.QtCore import * 
 #from PyQt5.QtGui import *
+from Computer import Computer
+from Human import Human
 
 #class Playwithnaiveai(QApplication):
 class Playwithnaiveai:
@@ -16,7 +18,9 @@ class Playwithnaiveai:
         #super().__init__(sys.argv)
         #self.playsignal = pyqtSignal(tuple) 
         self.computer = naiveai.naivecomputer2.Computer()
-        self.chessboard = Chessboard.Chessboard()
+
+        players = [Computer(), Human()]
+        self.chessboard = Chessboard.Chessboard(players=players)
 
         self.waitingforplay = True
 
@@ -26,7 +30,7 @@ class Playwithnaiveai:
         self.waitingforplay = False
         
     def init(self):
-        self.ui = viewer.UI(pressaction=self.playerplay,chessboardinfo=self.chessboard.chessboardinfo())
+        self.ui = viewer.UI(pressaction=self.playerplay,chessboardinfo=self.chessboard.get_chessboard())
         self.ui.start()
 
         status,winner = self.chessboard.victoryjudge(role='Computer')
@@ -37,13 +41,13 @@ class Playwithnaiveai:
             if status:
                 self.endgame(role='Human')
 
-            chesspos = self.computer.play(self.chessboard.chessboardinfo())
+            chesspos = self.computer.play(self.chessboard.get_chessboard())
             self.chessboard.playchess(chesspos,role='Computer')
             status,winner = self.chessboard.victoryjudge(role='Computer')
             if status:
                 self.endgame(role='Computer')
             
-            self.ui.setchessboard(self.chessboard.chessboardinfo())
+            self.ui.setchessboard(self.chessboard.get_chessboard())
             self.waitingforplay = True
         
     def endgame(self,role):

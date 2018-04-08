@@ -74,6 +74,9 @@ class Chessboard:
         if chess_value < 0:
             return copy.deepcopy(-self.chessboard)
         return copy.deepcopy(self.chessboard)
+
+    def get_chessboard(self):
+        return copy.deepcopy(self.chessboard)
         
     def is_available(self):
         return np.sum(self.chessboard==0)>0

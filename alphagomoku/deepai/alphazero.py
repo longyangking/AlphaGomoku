@@ -1,96 +1,174 @@
 from __future__ import print_function
-import keras
-from keras.layers import Dense, Conv2D, BatchNormalization, Activation
-from keras.layers import AveragePooling2D, Input, Flatten, Merge
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from keras.callbacks import ReduceLROnPlateau
-from keras.preprocessing.image import ImageDataGenerator
-from keras.regularizers import l2
-from keras import backend as K
+
 from keras.models import Model
-from keras.datasets import cifar10
+from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation, LeakyReLU, add
+from keras.optimizers import SGD
+from keras import regularizers
+import keras.backend as K
+import tensorflow as tf
+
 import numpy as np
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # Only error will be shown
+
+def softmax_cross_entropy_with_logits(y_true, y_pred):
+	loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y_true, logits=y_pred)
+	return loss
 
 class AlphaZero:
     def __init__(self,
         input_size,
-        learning_rate,
+        hidden_layers,
+        learning_rate=1e-4,
+        momentum=0.9,
         l2_const=1e-4,
+        verbose=False
         ):
-        self.input_size = input_size
 
         self.input_size = input_size
+        self.hidden_layers = hidden_layers
+
         self.learning_rate = learning_rate
         self.l2_const = l2_const
+        self.momentum = momentum
 
+        self.output_size = self.input_size[1]*self.input_size[2]
         self.model = None
+
+        self.verbose = verbose
 
     def init(self):
-        self.model = None
+        main_input = Input(shape = self.input_size, name = 'main_input')
 
-    def evaluate(self,chessboard):
-        # TODO return policy_value, action_prob
+        x = self._conv_block(main_input, self.hidden_layers[0]['nb_filter'], self.hidden_layers[0]['kernel_size'])
+        if len(self.hidden_layers) > 1:
+            for h in self.hidden_layers[1:]:
+                x = self._res_block(x, h['nb_filter'], h['kernel_size'])
 
-        state = chessboard.get_state()
-        if len(state) == 0:
-            raise ValueError("Void state!")
-        action_prob = np.ones(self.input_size[1:])
-        action_prob = action_prob/np.sum(action_prob)
-        return 0.0, action_prob
+        value = self._policy_value_block(x)
+        action_prob = self._action_prob_block(x)
+
+        self.model = Model(inputs=[main_input], outputs=[value,action_prob])
+        self.model.compile(loss={'value_head': 'mean_squared_error', 'policy_head': softmax_cross_entropy_with_logits},
+			optimizer=SGD(lr=self.learning_rate, momentum=self.momentum),	
+			loss_weights={'value_head': 0.5, 'policy_head': 0.5}	
+			)
         
-    def value_function(self,state):
-        return 0.0
-
-    def update(self,data):
-        # TODO update policy
+    def value_function(self,chessboard, role, verbose=False):
         pass
+
+    def update(self,train_data):
+        pass
+        #self.model.fit(***, epochs=epochs, verbose=verbose, validation_split = validation_split, batch_size = batch_size)
+
     
-    def _policy_value_block(self,input_tensor,nb_filter,kernel_size=3):
-        # TODO policy value network
-        out = Conv2D(nb_filter[0], 1, 1)(input_tensor)
+    def _policy_value_block(self,input_tensor):
+        out = Conv2D(
+            filters = 1,
+            kernel_size = (1,1),
+            data_format="channels_first",
+            padding = 'same',
+            use_bias=False,
+            activation='linear',
+            kernel_regularizer = regularizers.l2(self.l2_const)
+		)(input_tensor)
 
-        return out
+        out = BatchNormalization(axis=1)(out)
+        out = LeakyReLU()(out)
+        out = Flatten()(out)
 
-    def _action_prob_block(self):
-        out = Conv2D(nb_filter[0], kernel_size, kernel_size)(out)
+        out = Dense(
+			20,
+            use_bias=False,
+            activation='linear',
+            kernel_regularizer=regularizers.l2(self.l2_const)
+		)(out)
+
+        out = LeakyReLU()(out)
+
+        value = Dense(
+			1, 
+            use_bias=False,
+            activation='tanh',
+            kernel_regularizer=regularizers.l2(self.l2_const),
+            name = 'value_head'
+			)(out)
+
+        return value
+
+    def _action_prob_block(self, input_tensor):
+        out = Conv2D(
+            filters = 2,
+            kernel_size = (1,1),
+            data_format="channels_first"
+            , padding = 'same'
+            , use_bias=False
+            , activation='linear'
+            , kernel_regularizer = regularizers.l2(self.l2_const)
+            )(input_tensor)
+
+        out = BatchNormalization(axis=1)(out)
+        out = LeakyReLU()(out)
+        out = Flatten()(out)
+
+        out = Dense(
+			self.output_size,
+            use_bias=False,
+            activation='linear',
+            kernel_regularizer=regularizers.l2(self.l2_const),
+            name = 'policy_head'
+			)(out)
 
         return out
 
     def _conv_block(self, input_tensor, nb_filter, kernel_size=3):
-        out = Conv2D(nb_filter[0], 1, 1)(input_tensor)
-        out = BatchNormalization()(out)
-        out = Activation('relu')(out)
+        out = Conv2D(
+            filters = nb_filter,
+            kernel_size = kernel_size,
+            data_format="channels_first",
+            padding = 'same',
+            use_bias=False,
+            activation='linear',
+            kernel_regularizer = regularizers.l2(self.l2_const)
+		)(input_tensor)
 
-        out = Conv2D(nb_filter[1], kernel_size, kernel_size, border_mode='same')(out)
-        out = BatchNormalization()(out)
-        out = Activation('relu')(out)
-
-        out = Conv2D(nb_filter[2], 1, 1)(out)
-        out = BatchNormalization()(out)
-
-        input_tensor = Conv2D(nb_filter[2], 1, 1)(input_tensor)
-        input_tensor = BatchNormalization()(input_tensor)
-
-        out = Merge([out, input_tensor], mode='sum')
-        out = Activation('relu')(out)
+        out = BatchNormalization(axis=1)(out)
+        out = LeakyReLU()(out)
 
         return out
 
-    def _identity_block(self, input_tensor, nb_filter, kernel_size=3):
-        out = Conv2D(nb_filter[0], 1, 1)(input_tensor)
-        out = BatchNormalization()(out)
-        out = Activation('relu')(out)
+    def _res_block(self, input_tensor, nb_filter, kernel_size=3):
+        out = self._conv_block(input_tensor, nb_filter, kernel_size)
 
-        out = Conv2D(nb_filter[1], kernel_size, kernel_size, border_mode='same')(out)
-        out = BatchNormalization()(out)
-        out = Activation('relu')(out)
+        out = Conv2D(
+                filters = nb_filter,
+                kernel_size = kernel_size,
+                data_format="channels_first",
+                padding = 'same',
+                use_bias=False,
+                activation='linear',
+                kernel_regularizer = regularizers.l2(self.l2_const)
+		    )(out)
 
-        out = Conv2D(nb_filter[2], 1, 1)(out)
-        out = BatchNormalization()(out)
-
-        out = Merge([out, x], mode='sum')
-        out = Activation('relu')(out)
+        out = BatchNormalization(axis=1)(out)
+        out = add([input_tensor, out])
+        out = LeakyReLU()(out)
 
         return out
+
+
+
+if __name__=='__main__':
+    input_size = (3,5,5)
+    hidden_layers = list()
+    hidden_layers.append({'nb_filter':20, 'kernel_size':3})
+    hidden_layers.append({'nb_filter':20, 'kernel_size':3})
+    hidden_layers.append({'nb_filter':20, 'kernel_size':3})
+    hidden_layers.append({'nb_filter':20, 'kernel_size':3})
+    alphazero = AlphaZero(input_size, hidden_layers)
+    alphazero.init()
+
+    input_data = np.random.random((1,*input_size))
+    value, action_prob = alphazero.model.predict(input_data)
+    print(value)
+    print(action_prob)

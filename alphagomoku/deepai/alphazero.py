@@ -168,7 +168,11 @@ if __name__=='__main__':
     alphazero = AlphaZero(input_size, hidden_layers)
     alphazero.init()
 
-    input_data = np.random.random((1,*input_size))
-    value, action_prob = alphazero.model.predict(input_data)
-    print(value)
-    print(action_prob)
+    from keras.utils import plot_model
+    plot_model(alphazero.model,show_shapes=True,show_layer_names=False, to_file='model.png')
+    print(alphazero.model.summary())
+
+    # input_data = np.random.random((1,*input_size))
+    # value, action_prob = alphazero.model.predict(input_data)
+    # print(value)
+    # print(action_prob)

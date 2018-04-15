@@ -5,5 +5,5 @@ class Computer:
     def __init__(self):
         pass
 
-    def play(self,chessboardinfo):
+    def play(self,chessboard, role):
         pass

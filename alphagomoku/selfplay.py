@@ -9,7 +9,7 @@ import Config
 import Computer
 from Gameengine import GameEngine
 
-class Selfplay:
+class SelfplayEngine:
     def __init__(self, ai, c_puct, n_playout, is_selfplay, verbose=False):
         self.ai = ai
         self.dataset = list()

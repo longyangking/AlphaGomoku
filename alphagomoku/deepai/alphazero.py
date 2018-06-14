@@ -54,13 +54,17 @@ class AlphaZero:
 			loss_weights={'value_head': 0.5, 'policy_head': 0.5}	
 			)
         
-    def value_function(self,chessboard, role, verbose=False):
-        pass
+    def value_function(self, chessboard, verbose=False):
+        state = chessboard.get_state()
+        value, prob_act = self.model.predict(state)
+        return value, prob_act
 
-    def update(self,train_data):
-        pass
-        #self.model.fit(***, epochs=epochs, verbose=verbose, validation_split = validation_split, batch_size = batch_size)
+    def train(self, X, y, batchsize=128, epochs=30, validation_split=0.1, verbose=False):
+        self.model.fit(X, y, epochs=epochs, batchsize=batchsize, validation_split=validation_split, verbose=verbose)
 
+    def update(self, dataset):
+        states, values, policys  = dataset.get_traindata()
+        self.model.train_on_batch(states, [values, policys])
     
     def _policy_value_block(self,input_tensor):
         out = Conv2D(
@@ -81,7 +85,7 @@ class AlphaZero:
 			20,
             use_bias=False,
             activation='linear',
-            kernel_regularizer=regularizers.l2(self.l2_const)
+            kernel_regularizer= regularizers.l2(self.l2_const)
 		)(out)
 
         out = LeakyReLU()(out)

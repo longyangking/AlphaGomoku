@@ -6,11 +6,14 @@ from Gamedata import Gamedata
 import copy
 
 class Chessboard:
-    def __init__(self,players):
+    def __init__(self,players, board_size=None):
         self.players = players
 
         self.chessboardheight = Config.ChessBoardHeight
         self.chessboardwidth = Config.ChessBoardWidth
+        if board_size is not None:
+            self.chessboardheight, self.chessboardwidth = board_size
+        
         self.shape = (self.chessboardwidth,self.chessboardheight)
         self.chessboard = np.zeros(self.shape)
         self.gamedata = Gamedata(board_shape=(self.chessboardheight,self.chessboardwidth))

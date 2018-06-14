@@ -1,10 +1,10 @@
 import numpy as np
-from alphazero import AlphaZero 
+from deepai.alphazero import AlphaZero 
 from collections import defaultdict, deque
+from selfplay import SelfplayEngine
 
 class TrainAI:
     def __init__(self,
-        game,
         board_size=(10,10),
         learning_rate=2e-3,
         lr_multiplier=1.0,
@@ -45,10 +45,23 @@ class TrainAI:
         self.verbose = verbose
 
         # TODO initiate alphazero model
-        self.ai = AlphaZero()
+        hidden_layers = list()
+        hidden_layers.append({'nb_filter':20, 'kernel_size':3})
+        hidden_layers.append({'nb_filter':20, 'kernel_size':3})
+        hidden_layers.append({'nb_filter':20, 'kernel_size':3})
+        hidden_layers.append({'nb_filter':20, 'kernel_size':3})
 
-        # TODO initiate mcts self-play model
-        self.mcts_player = MCTSPlaye()
+        self.ai = AlphaZero(
+            input_size=(*board_size, 1),
+            hidden_layers=hidden_layers,
+            learning_rate=1e-4,
+            momentum=0.9,
+            l2_const=1e-4,
+            verbose=False
+        )
+
+    def get_ai(self):
+        return self.ai
 
     def get_data_extended(self,play_data):
         '''
@@ -64,21 +77,37 @@ class TrainAI:
         '''
         Get MCTS self-play data for training
         '''
+        dataset = list()
+        for i in range(n_games):
+            selfplayengine = SelfplayEngine()
+            dataset.append(selfplayengine.get_data())
+        return dataset
 
-
-    def network_update(self):
+    def network_update(self, dataset):
         '''
         update AlphaZero policy-value network
         '''
+        n_dataset = len(dataset)
+        Xs_train, values_train, policy_train = list(), list(), list()
+        for i in range(n_dataset):
+            Xs, values, policy = dataset.get_traindata()
+            Xs_train.append(Xs)
+            values_train.append(values)
+            policy_train.append(policy)
+
+        self.ai.train(Xs_train, [values_train, policy_train])
 
         return loss, entropy
 
-    def network_evaluate(self,n_games=10)
+    def network_evaluate(self,n_games=10):
         '''
         get win ratio 
         '''
 
         return win_ratio
+
+    def savemodel(self):
+        pass
 
     def start(self):
         '''

@@ -22,9 +22,10 @@ class TrainAI:
         game_batch_size=1500,
         best_win_ratio=0.0,
         parallelize=1,
+        vectorlength=3,
         verbose=False):
 
-        self.game = game # instance of game engine
+        self.game = None # instance of game engine
         self.board_size = board_size    # size of board
         self.learning_rate = learning_rate  # learning rate for training network
         self.lr_multiplier = lr_multiplier  # adjust learning rate adaptively based on KL
@@ -51,14 +52,18 @@ class TrainAI:
         hidden_layers.append({'nb_filter':20, 'kernel_size':3})
         hidden_layers.append({'nb_filter':20, 'kernel_size':3})
 
+
+        input_size = (*board_size, vectorlength)
         self.ai = AlphaZero(
-            input_size=(*board_size, 1),
+            input_size=input_size,
             hidden_layers=hidden_layers,
             learning_rate=1e-4,
             momentum=0.9,
             l2_const=1e-4,
             verbose=False
         )
+
+        self.ai.init()
 
     def get_ai(self):
         return self.ai
@@ -73,13 +78,18 @@ class TrainAI:
 
         return extend_data
 
-    def get_selfplay_data(self, n_games):
+    def get_selfplay_data(self):
         '''
         Get MCTS self-play data for training
         '''
         dataset = list()
-        for i in range(n_games):
-            selfplayengine = SelfplayEngine()
+        for i in range(self.selfplay_batch_size):
+            selfplayengine = SelfplayEngine(
+                ai=self.ai, 
+                c_puct=self.c_puct, 
+                n_playout=self.n_playout, 
+                verbose=self.verbose)
+            selfplayengine.init()
             dataset.append(selfplayengine.get_data())
         return dataset
 
@@ -87,6 +97,8 @@ class TrainAI:
         '''
         update AlphaZero policy-value network
         '''
+        return 0, 0
+
         n_dataset = len(dataset)
         Xs_train, values_train, policy_train = list(), list(), list()
         for i in range(n_dataset):
@@ -119,10 +131,10 @@ class TrainAI:
         '''
         try:
             for i in range(self.game_batch_size):
-                play_data = self.get_selfplay_data()
                 if self.verbose:
-                    print("Batch i ")
-
+                    print("Train Batch {0}: ".format(i+1))
+                play_data = self.get_selfplay_data()
+            
                 if self.verbose:
                     print("Updating network...",end="")
                 loss, entropy = self.network_update(play_data)

@@ -6,7 +6,7 @@ from Gamedata import Gamedata
 import copy
 
 class Chessboard:
-    def __init__(self,players, board_size=None):
+    def __init__(self, players, board_size=None):
         self.players = players
 
         self.chessboardheight = Config.ChessBoardHeight

@@ -32,7 +32,7 @@ class AlphaZero:
         self.l2_const = l2_const
         self.momentum = momentum
 
-        self.output_size = self.input_size[1]*self.input_size[2]
+        self.output_size = self.input_size[0]*self.input_size[1]
         self.model = None
 
         self.verbose = verbose
@@ -54,10 +54,16 @@ class AlphaZero:
 			loss_weights={'value_head': 0.5, 'policy_head': 0.5}	
 			)
         
-    def value_function(self, chessboard, verbose=False):
+    def value_function(self, chessboard, role, verbose=False):
         state = chessboard.get_state()
+        state = np.array(state)
+        #print(state.shape)
+        state = state.reshape(1, *self.input_size)
+
         value, prob_act = self.model.predict(state)
-        return value, prob_act
+        _, acts = chessboard.get_availables()
+        action_probs = zip(acts, prob_act[0][acts])
+        return value[0][0], action_probs
 
     def train(self, X, y, batchsize=128, epochs=30, validation_split=0.1, verbose=False):
         self.model.fit(X, y, epochs=epochs, batchsize=batchsize, validation_split=validation_split, verbose=verbose)

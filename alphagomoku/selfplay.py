@@ -10,13 +10,12 @@ import Computer
 from Gameengine import GameEngine
 
 class SelfplayEngine:
-    def __init__(self, ai, c_puct, n_playout, is_selfplay, verbose=False):
+    def __init__(self, ai, c_puct, n_playout, verbose=False):
         self.ai = ai
         self.dataset = list()
         self.gameenigne = None
         self.c_puct = c_puct
         self.n_playout = n_playout
-        self.is_selfplay = is_selfplay
         self.verbose = verbose
 
     def init(self):
@@ -24,18 +23,20 @@ class SelfplayEngine:
         computerA = MCTSPlayer(value_function=self.ai.value_function, 
                         c_puct=self.c_puct, 
                         n_playout=self.n_playout, 
-                        is_selfplay=self.is_selfplay,
+                        is_selfplay=True,
                         role='Self_A',
                         verbose=self.verbose)
         computerB = MCTSPlayer(value_function=self.ai.value_function, 
                         c_puct=self.c_puct, 
                         n_playout=self.n_playout, 
-                        is_selfplay=self.is_selfplay,
+                        is_selfplay=True,
                         role='Self_B',
                         verbose=self.verbose)
         self.gameenigne = GameEngine(playerA=computerA,playerB=computerB,verbose=self.verbose)
 
     def get_data(self):
+        if self.verbose:
+            print("Self-playing...")
         gamedata = self.gameenigne.run()
         #winner, train_data = gamedata.getalldata()
         return gamedata

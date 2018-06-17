@@ -20,6 +20,7 @@ class TreeNode:
         self._P = prior_p
 
     def expand(self,action_priors):
+        #print(action_priors)
         for action, prob in action_priors:
             if action not in self._childern:
                 self._childern[action] = TreeNode(self,prob)
@@ -69,7 +70,7 @@ class MCTS:
             chessboard.playchess_rec(pos_rec=action,role=roles[role_index])
             role_index = (role_index + 1)%len(roles)
 
-        action_probs, leaf_value = self._value_function(chessboard=chessboard, role=roles[role_index], verbose=self.verbose)
+        leaf_value, action_probs = self._value_function(chessboard=chessboard, role=roles[role_index], verbose=self.verbose)
         end, winner =  chessboard.get_status()
 
         if not end:
@@ -93,6 +94,7 @@ class MCTS:
 
         action_visits = [(action, node._n_visits) 
                         for action, node in self._root._childern.items()]
+        print(action_visits)
         actions, visits = zip(*action_visits)
         action_probs = softmax(1.0/temperature*np.log(np.array(visits) + eps))
         return actions, action_probs

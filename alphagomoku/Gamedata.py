@@ -64,7 +64,7 @@ class Gamedata:
                 state.append(np.zeros(self.board_shape))
             return state
         if self.totalsteps < steps:
-            for _ in range(self.totalsteps-steps):
+            for _ in range(steps-self.totalsteps):
                 state.append(np.zeros(self.board_shape))
             for i in range(self.totalsteps):
                 state.append(self.list[i])

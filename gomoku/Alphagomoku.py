@@ -7,7 +7,25 @@ board_size = (Config.ChessBoardHeight, Config.ChessBoardWidth)
 
 __version__ = "0.0.1"
 __author__ = "Yang Long"
-__info__ = """
+
+class Alphagomoku:
+    def __init__(self, borad_size=board_size):
+        pass
+
+    def restart_train(self):
+        pass
+
+    def continue_train(self,model):
+        pass
+
+    def loadai(self):
+        pass
+
+    def run(self):
+        pass
+
+if __name__=='__main__':
+    info = """
             {name} 
             [version:{version},
             Author: {author}]
@@ -17,7 +35,6 @@ __info__ = """
             author=__author__
         )
 
-if __name__=='__main__':
     parser = argparse.ArgumentParser(description=info)
 
     parser.add_argument("--retrain", action='store_true', default=False, help="Re-Train AI")
@@ -34,9 +51,10 @@ if __name__=='__main__':
 
     if args.retrain:
         print("Re-train AI")
-
-    if args.info:
-        print("Info")
+        trainai = TrainAI(
+            board_size=board_size,
+            verbose=verbose)
+        trainai.start()
 
     if args.play:
         print("Play with AI!")

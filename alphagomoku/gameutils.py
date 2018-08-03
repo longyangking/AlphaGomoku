@@ -1,6 +1,7 @@
+from __future__ import absolute_import
+
 import numpy as np 
 import Config
-import Chessboard
 
 import h5py
 import numpy as np 
@@ -118,13 +119,6 @@ class Gamedata:
 
         gamefile.create_dataset("description",data=description)
         gamefile.close()
-
-from __future__ import absolute_import
-
-import numpy as np 
-import Config
-from Gamedata import Gamedata
-import copy
 
 class Chessboard:
     def __init__(self, players, board_size=None):
@@ -314,7 +308,6 @@ class Chessboard:
                         flag =  True
                         return flag,role
         
-
         return flag,None
 
 class GameEngine:

@@ -315,7 +315,7 @@ class TrainAI:
         '''
         update AlphaZero policy-value network
         '''
-        loss = self.ai.update_network(dataset, epochs=10, batch_size=64, verbose=verbose)
+        loss = self.ai.update_network(dataset, epochs=100, batch_size=64, verbose=verbose)
         return loss
 
     def network_evaluate(self):
@@ -334,9 +334,9 @@ class TrainAI:
             hyper-parameters for MCTS
             3. Return 1 until convergence or satisfying the end conditions
         '''
-        epochs = 1000
-        check_freq = 2
-        n_round = 2 
+        epochs = 50000
+        check_freq = 100
+        n_round = 30
 
         for i in range(epochs):
             if self.verbose:

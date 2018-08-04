@@ -25,7 +25,13 @@ Under development. Not all codes can run normally. May with some obscure bugs
     ```$ python playwithnaiveai.py```
 
 ### Train deep learning AI
-Coming soon
++ Re-Train AI network (Linux)  
+    ```$ cd alphagomoku```  
+    ```$ python Alphagomoku.py --retrain --verbose```
 
 ### Play with deep learning AI
-Coming soon
+Please train AI network firstly!
+
++ Play with AI network (Linux)  
+    ```$ cd alphagomoku```  
+    ```$ python Alphagomoku.py --play```

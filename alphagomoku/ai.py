@@ -380,7 +380,7 @@ class AI:
         Play game (or self-play)
         '''
         c_puct = 0.95
-        n_playout = 10
+        n_playout = 30
 
         if is_selfplay:
             mcts = MCTS(

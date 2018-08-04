@@ -63,15 +63,14 @@ class TreeNode:
         return self._parent is None
 
 class MCTS:
-    def __init__(self, evaluate_function, c_puct, n_playout, role, verbose=False):
+    def __init__(self, evaluate_function, c_puct, n_playout, verbose=False):
         self.root = TreeNode(None, 1.0)
         self.evaluate_function = evaluate_function
         self.c_puct = c_puct
         self.n_playout = n_playout
-        self.role = role
         self.verbose = verbose
 
-    def search(self, engine):
+    def search(self, engine, temperature):
         '''
         Simulate MCTS to search best policy for current status
         '''
@@ -80,11 +79,14 @@ class MCTS:
         engine.init_mcts()
 
         for i in range(self.n_playout):
+            # if self.verbose:
+            #     print("{0}th round.".format(i+1))
+
             if self.root.is_leaf():
                 # Expand and Evaluate
                 value, action_probs = self.evaluate_function(engine)
 
-                self.root.expand(zip(*action_probs))
+                self.root.expand(action_probs)
 
                 # Backup
                 self.root.update(value)
@@ -99,7 +101,7 @@ class MCTS:
                 # Expand and Evaluate
                 value, action_probs = self.evaluate_function(engine)
 
-                node.expand(zip(*action_probs))
+                node.expand(action_probs)
                 # Backup
                 node.update_recursive(value)
 
@@ -107,6 +109,7 @@ class MCTS:
 
         # Play: Return simulation results
         actions_visits = [(action, node._n_visits) for action, node in self.root._childern.items()]
+
         actions, visits = zip(*actions_visits)
         probs = softmax(1.0/temperature*np.log(np.array(visits) + eps))
         return actions, probs
@@ -133,13 +136,13 @@ class NeuralNetwork:
         self.l2_const = l2_const
         self.momentum = momentum
 
-        self.output_size = self.input_shape[0]*self.input_shape[1] + 1
+        self.output_size = self.input_shape[0]*self.input_shape[1]
         self.model = model
 
         self.verbose = verbose
 
     def init(self):
-        main_input = Input(shape = self.input_size, name = 'main_input')
+        main_input = Input(shape = self.input_shape, name = 'main_input')
 
         x = self._conv_block(main_input, self.hidden_layers[0]['nb_filter'], self.hidden_layers[0]['kernel_size'])
         if len(self.hidden_layers) > 1:
@@ -249,8 +252,11 @@ class NeuralNetwork:
 
         return out
 
+    def predict(self, state):
+        return self.model.predict(state)
+
     def train(self, states, values, policys, epochs, batch_size, verbose):
-        loss = self.model.fit(states, [values, policys] 
+        loss = self.model.fit(states, [values, policys],
             epochs=epochs, 
             batch_size=batch_size, 
             verbose=verbose)
@@ -298,6 +304,8 @@ class AI:
         self.state_shape = state_shape
         self.verbose = verbose
 
+        self.action_dim = self.state_shape[0]*self.state_shape[1]
+
         if nnet is not None:
             self.nnet = nnet
         else:
@@ -329,29 +337,32 @@ class AI:
     def get_nnet(self):
         return self.nnet
 
+    def save_nnet(self, filename):
+        self.nnet.save_model(filename)
+
     def evaluate_function(self, engine):
         '''
         Evaluate function
         '''
-        if role is None:
-            role = self.role
+        eps = 1e-12
         state = engine.get_state()
+
+        state = state.reshape(-1,*state.shape)
         value, _probs = self.nnet.predict(state)
 
         actions = engine.get_availables()
-        probs = np.zeros(self.state_shape[:2])
-        probs = _probs[0][actions]
-        probs = probs/np.sum(probs)
+        probs = np.zeros(self.action_dim)
+        probs[actions] = _probs[0][actions]
+        
+        probs = probs/np.sum(probs + eps)
         action_probs = zip(actions, probs) # actions with their probabilities
         return value[0][0], action_probs
 
-    def update_network(self, data, batch_size=128, epochs=30, verbose=False):
+    def update_network(self, dataset, batch_size, epochs, verbose=False):
         '''
         Train AI
         '''
-        Xs, ys = zip(*data)
-        states = Xs
-        values, policys = zip(*ys) 
+        states, values, policys = dataset
         loss = self.nnet.train(states, values, policys, epochs=epochs, batch_size=batch_size, verbose=verbose)
         return loss
 
@@ -359,9 +370,7 @@ class AI:
         '''
         Update AI
         '''
-        Xs, ys = zip(*data)
-        states = Xs
-        values, policys = zip(*ys) 
+        states, values, policys = zip(*data) 
         loss = self.nnet.train(states, values, policys, verbose=verbose)
         return loss
 
@@ -369,7 +378,6 @@ class AI:
         '''
         Play game (or self-play)
         '''
-        n_search = 10
         c_puct = 0.95
         n_playout = 10
 
@@ -381,7 +389,7 @@ class AI:
                     verbose=self.verbose
                 )
             # MCTS_actions should be 1D vector
-            mcts_actions, probs = self.mcts.search(engine=engine) 
+            mcts_actions, probs = mcts.search(engine=engine, temperature=temperature) 
             action = np.random.choice(
                 mcts_actions,
                 p=0.75*probs + 0.25*np.random.dirichlet(0.3*np.ones(len(probs)))
@@ -393,7 +401,9 @@ class AI:
             action = actions[index]
 
         if is_selfplay:
-            return action, probs
+            pi = np.zeros(self.action_dim)
+            pi[np.array(mcts_actions)] = probs
+            return action, pi
         return action
 
 if __name__=='__main__':

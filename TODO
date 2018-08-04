@@ -1,4 +1,4 @@
-1. Make sure the data structures for training, and then add the required logic code
-2. Check the whole training process carefully and run some simple text cases
-3. Submit it to the GPU server and get the "crude" model firstly
+1. Make sure the data structures for training, and then add the required logic code (Done)
+2. Check the whole training process carefully and run some simple test cases (Not fully done)
+3. Submit it to the GPU server and get the "crude" model firstly 
 4. Take careful modification to improve performance

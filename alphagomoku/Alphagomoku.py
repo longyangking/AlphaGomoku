@@ -1,6 +1,6 @@
 import numpy as np 
 import argparse
-from train import TrainAI
+from trainutils import TrainAI
 import Config
 
 board_size = (Config.ChessBoardHeight, Config.ChessBoardWidth)
@@ -18,7 +18,7 @@ __info__ = """
         )
 
 if __name__=='__main__':
-    parser = argparse.ArgumentParser(description=info)
+    parser = argparse.ArgumentParser(description=__info__)
 
     parser.add_argument("--retrain", action='store_true', default=False, help="Re-Train AI")
     parser.add_argument("--train",  action='store_true', default=False, help="Train AI")
@@ -34,6 +34,8 @@ if __name__=='__main__':
 
     if args.retrain:
         print("Re-train AI")
+        trainprocess = TrainAI(verbose=verbose)
+        trainprocess.start()
 
     if args.info:
         print("Info")

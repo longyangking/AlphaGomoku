@@ -270,14 +270,15 @@ class NeuralNetwork:
         '''
         Load Model with file name
         '''
-        from keras.models import load_model as LOAD_MODEL
-        self.model = LOAD_MODEL(filename)
+        #from keras.models import load_weights
+        self.model.load_weights(filename)
 
     def save_model(self, filename):
         '''
         Save model with file name
         '''
-        self.model.save(filename)
+        #from keras.models import save_weights
+        self.model.save_weights(filename)
 
     def plot_model(self, filename='model.png'):
         from keras.utils import plot_model
@@ -406,8 +407,12 @@ class AI:
             return action, pi
         return action
 
+    def load_nnet(self, filename):
+        self.nnet.load_model(filename)
+
 if __name__=='__main__':
-    input_size = (3,5,5)
+    # Just for debugging
+    input_size = (5, 5, 3)
     hidden_layers = list()
     hidden_layers.append({'nb_filter':20, 'kernel_size':3})
     hidden_layers.append({'nb_filter':20, 'kernel_size':3})

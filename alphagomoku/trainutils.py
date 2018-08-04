@@ -26,6 +26,7 @@ class SelfplayEngine:
 
         # player information
         self.current_player = 0
+        self.chesses = [1, -1]
 
         # Control for MCTS
         self.dataset_mcts_index = 0
@@ -60,8 +61,8 @@ class SelfplayEngine:
             if len_boards-1-i >= 0:
                 index = 2*i
                 board = self.boards[len_boards-1-i]
-                state[:,:, self.channel-1-index] = 1*(board == player)
-                state[:,:, self.channel-1-(index+1)] = 1*(board == opposite_player)
+                state[:,:, self.channel-1-index] = 1*(board == self.chesses[player])
+                state[:,:, self.channel-1-(index+1)] = 1*(board == self.chesses[opposite_player])
 
         # Append it into the state list
         self.states.append(state)        
@@ -170,6 +171,7 @@ class EvaluationEngine:
         # player information
         self.states = list()
         self.current_player = 0
+        self.chesses = [1, -1]
 
         self.state_shape = ai.get_state_shape()
         self.channel = self.state_shape[2] - 1 # Even number
@@ -202,8 +204,8 @@ class EvaluationEngine:
             if len_boards-1-i >= 0:
                 index = 2*i
                 board = self.boards[len_boards-1-i]
-                state[:,:, self.channel-1-index] = 1*(board == player)
-                state[:,:, self.channel-1-(index+1)] = 1*(board == opposite_player)
+                state[:,:, self.channel-1-index] = 1*(board == self.chesses[player])
+                state[:,:, self.channel-1-(index+1)] = 1*(board == self.chesses[opposite_player])
 
         # Append it into the state list
         self.states.append(state) 
@@ -267,7 +269,7 @@ class EvaluationEngine:
 
 class TrainAI:
     def __init__(self,
-        state_shape=(10,10,7),
+        state_shape,
         verbose=False):
 
         self.state_shape = state_shape
@@ -360,6 +362,6 @@ class TrainAI:
 
                 if win_ratio > 0.55:
                     print("Get new best AI")
-                    self.ai.save("./best_model.h5")
+                    self.ai.save_nnet("./best_model.h5")
                     self.best_ai = self.ai.clone()
 

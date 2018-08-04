@@ -1,9 +1,12 @@
 import numpy as np 
 import argparse
 from trainutils import TrainAI
+from gomoku import GameEngine
 import Config
 
-board_size = (Config.ChessBoardHeight, Config.ChessBoardWidth)
+__board_width__, __board_height__ = 10,10
+__channel_depth__ = 7
+__state_shape__ = __board_width__, __board_height__, __channel_depth__
 
 __version__ = "0.0.1"
 __author__ = "Yang Long"
@@ -34,7 +37,7 @@ if __name__=='__main__':
 
     if args.retrain:
         print("Re-train AI")
-        trainprocess = TrainAI(verbose=verbose)
+        trainprocess = TrainAI(state_shape=__state_shape__,verbose=verbose)
         trainprocess.start()
 
     if args.info:
@@ -42,3 +45,5 @@ if __name__=='__main__':
 
     if args.play:
         print("Play with AI!")
+        engine = GameEngine(state_shape=__state_shape__, verbose=verbose)
+        engine.start()

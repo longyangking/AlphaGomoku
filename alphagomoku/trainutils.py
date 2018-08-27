@@ -293,10 +293,10 @@ class TrainAI:
             selfplayengine = SelfplayEngine(ai=self.best_ai, verbose=self.verbose)
             states, pis, values = selfplayengine.start()
 
-            for i in range(len(values)):
-                all_states.append(states[i])
-                all_pis.append(pis[i])
-                all_values.append(values[i])
+            for k in range(len(values)):
+                all_states.append(states[k])
+                all_pis.append(pis[k])
+                all_values.append(values[k])
         
         all_states = np.array(all_states)
         all_pis = np.array(all_pis)
